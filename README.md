@@ -1,8 +1,15 @@
 How to use:
-- Download a csv of your classes from Workday
-- Copy the file path to the csv
+- Download a CSV of your classes from Workday
+    - Workday -> Academics -> View My Courses
+    - I don't think Workday allows you to download a CSV, so download the excel file and convert that to a CSV
+- Copy the file path to the CSV
 - Run this program in command line
     - Paste the file path when prompted
+
+Dependencies: 
+- python
+- pandas
+    - To install pandas, you should be able to type "pip install pandas"
 
 The title of each event will be the full course title listed on Workday.
 The description will be the room and instructor.
