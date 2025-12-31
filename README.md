@@ -7,9 +7,7 @@ How to use:
     - Paste the file path when prompted
 
 Dependencies: 
-- python
 - pandas
-    - To install pandas, you should be able to type "pip install pandas"
 
 The title of each event will be the full course title listed on Workday.
 The description will be the room and instructor.
