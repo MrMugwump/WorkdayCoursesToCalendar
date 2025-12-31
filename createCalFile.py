@@ -80,7 +80,11 @@ def processStartAndEndDate(startDate,endDate,frequency):
     formattedEnd = splitEnd[2]+splitEnd[0]+splitEnd[1] #YYYYMMDD
     return [formattedStart,formattedEnd]
 
-workdayCSV = pd.read_csv("Spring 2026 Courses.xlsx - View My Courses.csv",header=2)
+filePath = ""
+while filePath == "":
+    filePath = input("Paste the file path to the csv here: ")
+
+workdayCSV = pd.read_csv(filePath,header=2)
 
 header = ["BEGIN:VCALENDAR\n","VERSION:2.0\n"]
 
@@ -123,3 +127,5 @@ for i in range(1,numRows):
     f.write("END:VEVENT\n")
 
 f.write("END:VCALENDAR")
+
+print("File succesfully created!")
