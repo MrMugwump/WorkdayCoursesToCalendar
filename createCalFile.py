@@ -94,7 +94,7 @@ for i in header:
 
 numRows = workdayCSV.shape[0]
 
-for i in range(1,numRows):
+for i in range(0,numRows):
     currClassProcessed = processMeetingPatterns(workdayCSV.loc[i,"Meeting Patterns"]) 
     meetingDays = currClassProcessed[0]; timeSlot = currClassProcessed[1]; location = currClassProcessed[2]
     startAndEndDates = processStartAndEndDate(workdayCSV.loc[i,"Start Date"],workdayCSV.loc[i,"End Date"],meetingDays)
