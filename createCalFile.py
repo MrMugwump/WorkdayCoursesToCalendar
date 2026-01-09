@@ -27,9 +27,17 @@ def processMeetingPatterns(meetingInfo):
         elif "AM" in time:
             cleanedTime = time.replace(" AM ","").split(":")
                 
-        hours = int(cleanedTime[0])+offset
+        
+        hours = int(cleanedTime[0])+offset #offset is for am/pm
         minutes = int(cleanedTime[1])
-        timeSlot.append(hours*(10**4)+minutes*(10**2)) # formatting to turn the time into acceptable strings
+
+        #Some additional formatting, need exactly six digits, so 95500 becomes 095500
+        strToAdd = ""
+        if hours < 10:
+            strToAdd = "0"+str(hours*(10**4)+minutes*(10**2))
+        else:
+            strToAdd = str(hours*(10**4)+minutes*(10**2))
+        timeSlot.append(strToAdd) # formatting to turn the time into acceptable strings
 
     description = info[2][1:] # gets rid of the space at the beginning of the string
     return [rule,timeSlot,description]
