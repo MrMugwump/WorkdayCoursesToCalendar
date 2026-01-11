@@ -1,10 +1,12 @@
 import pandas as pd
 import datetime
 
-def processMeetingPatterns(meetingInfo):
-    info = meetingInfo.split("|")
+timezoneText ="X-WR-TIMEZONE:America/Chicago\nBEGIN:VTIMEZONE\nTZID:America/Chicago\nX-LIC-LOCATION:America/Chicago\nBEGIN:DAYLIGHT\nTZOFFSETFROM:-0600\nTZOFFSETTO:-0500\nTZNAME:CDT\nDTSTART:19700308T020000\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU\nEND:DAYLIGHT\nBEGIN:STANDARD\nTZOFFSETFROM:-0500\nTZOFFSETTO:-0600\nTZNAME:CST\nDTSTART:19701101T020000\nRRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU\nEND:STANDARD\nEND:VTIMEZONE\n"
+
+def formatDaysAndTime(days,times):
+
     rule = []
-    for char in info[0]:
+    for char in days:
         match char:
             case "M":
                 rule.append("MO")
@@ -17,15 +19,15 @@ def processMeetingPatterns(meetingInfo):
             case "F":
                 rule.append("FR")
     timeSlot=[]
-    startAndEndTimes = info[1].split("-")
+    startAndEndTimes = times.split("-")
     for time in startAndEndTimes:
         offset = 0
         if "PM" in time:
-            cleanedTime = time.replace(" PM ","").split(":") # Deletes the PM off the end and splits into hours and minutes
+            cleanedTime = time.replace(" PM","").split(":") # Deletes the PM off the end and splits into hours and minutes
             if int(cleanedTime[0]) != 12: # Hours
                 offset = 12
         elif "AM" in time:
-            cleanedTime = time.replace(" AM ","").split(":")
+            cleanedTime = time.replace(" AM","").split(":")
                 
         
         hours = int(cleanedTime[0])+offset #offset is for am/pm
@@ -38,10 +40,30 @@ def processMeetingPatterns(meetingInfo):
         else:
             strToAdd = str(hours*(10**4)+minutes*(10**2))
         timeSlot.append(strToAdd) # formatting to turn the time into acceptable strings
+    return [rule,timeSlot]
+
+# This version is for classes
+def processMeetingPatternsForClasses(meetingInfo): 
+    info = meetingInfo.split("|")
+    [rule, timeSlot]= formatDaysAndTime(days = info[0], times = info[1])
 
     description = info[2][1:] # gets rid of the space at the beginning of the string
     return [rule,timeSlot,description]
     
+# This version is for teaching assignments. 
+# Im doing this in a slightly stupid way in order to minimize the amount of code 
+# I have to change in order to add the capability to do teaching assignments without
+# just creating a second python script. So if you notice how much unnecessary repeated code I have 
+# you know why.
+def processMeetingPatternsForTeaching(meetingInfo, classroomInfo):
+    info = meetingInfo.split("|")
+    [rule, timeSlot]= formatDaysAndTime(days = info[0], times = info[1])
+
+    return [rule,timeSlot,classroomInfo]
+
+# This correctly formats the start and end dates, 
+# manually adjusting the start date to be the actual first day of class 
+# rather than the start of the semester, which is what workday gives. 
 def processStartAndEndDate(startDate,endDate,frequency):
     splitStart = startDate.split("/")
     splitEnd = endDate.split("/")
@@ -88,26 +110,53 @@ def processStartAndEndDate(startDate,endDate,frequency):
     formattedEnd = splitEnd[2]+splitEnd[0]+splitEnd[1] #YYYYMMDD
     return [formattedStart,formattedEnd]
 
-filePath = ""
-while filePath == "":
-    filePath = input("Paste the file path to the csv here: ")
+response = input("Type 1 if you are converting your course schedule, and 2 if you are converting your teaching schedule: ")
+while response != "1" and response != "2":
+    print("\nInvalid input")
+    response = input("Type 1 if you are converting your course schedule, and 2 if you are converting your teaching schedule: ")
+response = int(response)
 
-workdayCSV = pd.read_csv(filePath,header=2)
+def recursivelyAskForFilePath():
+    filePath = ""
+    while filePath == "":
+        filePath = input("Paste the file path to the csv here: ")
+    try:
+        csv = pd.read_csv(filePath,header=2 if response == 1 else 0)
+    except FileNotFoundError:
+        print("\nInvalid file path. Use only the file path and no quotation marks.\n")
+        csv = recursivelyAskForFilePath()
+    return csv
 
-header = ["BEGIN:VCALENDAR\n","VERSION:2.0\n"]
+workdayCSV = recursivelyAskForFilePath()
 
-f = open("courses.ics","w+")
+header = ["BEGIN:VCALENDAR\n","VERSION:2.0\n",timezoneText]
+
+
+icsTitle = "courses.ics" if response == 1 else "teachingAssignments.ics"
+
+f = open(icsTitle,"w+")
 for i in header:
     f.write(i)
 
 numRows = workdayCSV.shape[0]
 
-for i in range(0,numRows):
-    currClassProcessed = processMeetingPatterns(workdayCSV.loc[i,"Meeting Patterns"]) 
-    meetingDays = currClassProcessed[0]; timeSlot = currClassProcessed[1]; location = currClassProcessed[2]
-    startAndEndDates = processStartAndEndDate(workdayCSV.loc[i,"Start Date"],workdayCSV.loc[i,"End Date"],meetingDays)
 
-    # Create VEVENT
+# I'm suspicous that workday changes the column titles to 
+# be singlular instead of plural if you only have classes that meet once a week. 
+# For example, I personally only teach on tuesdays, and it 
+# says "Meeting Time" instead of "Meeting Times"
+meetingPatternsColumnName = "Meeting Patterns" if response == 1 else "Meeting Time" 
+courseTitleColumnName = "Course Listing" if response == 1 else "Course Section"
+
+for i in range(0,numRows):
+    if response == 1:
+        currClassProcessed = processMeetingPatternsForClasses(workdayCSV.loc[i,meetingPatternsColumnName])
+    else:
+        currClassProcessed = processMeetingPatternsForTeaching(workdayCSV.loc[i,meetingPatternsColumnName],workdayCSV.loc[i,"Location"])
+    meetingDays = currClassProcessed[0]; timeSlot = currClassProcessed[1]; location = currClassProcessed[2]
+    startAndEndDates = processStartAndEndDate(
+        workdayCSV.loc[i,"Start Date"],workdayCSV.loc[i,"End Date"],meetingDays)
+
     f.write("BEGIN:VEVENT\n")
 
     #DTSTART and DTEND specify the length of each class and the first day of class.
@@ -124,12 +173,14 @@ for i in range(0,numRows):
     f.write(rrule)
 
     #SUMMARY provides the title
-    title = workdayCSV.loc[i,"Course Listing"]
+    title = workdayCSV.loc[i,courseTitleColumnName]
     f.write("SUMMARY:"+title+"\n")
 
     #DESCRIPTION provides the description
-    instructor = workdayCSV.loc[i,"Instructor"]
-    description = currClassProcessed[2] + "\\n" + instructor #\\n to have a line break in the description but not in the .ics file.
+    description = currClassProcessed[2] 
+    if response == 1:
+        instructor = workdayCSV.loc[i,"Instructor"]
+        description = description + "\\n" + instructor #\\n to have a line break in the description but not in the .ics file.
     f.write("DESCRIPTION:"+ description+"\n")
 
     f.write("END:VEVENT\n")
