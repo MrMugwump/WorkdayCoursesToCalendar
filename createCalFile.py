@@ -196,11 +196,13 @@ for i in range(0,numRows):
     title = workdayCSV.loc[i,courseTitleColumnName]
     f.write("SUMMARY:"+title+"\n")
 
+    #LOCATION is just the classroom number and building
+    f.write("LOCATION:"+currClassProcessed[2]+"\n")
+
     #DESCRIPTION provides the description
-    description = currClassProcessed[2] 
     if response == 1:
         instructor = workdayCSV.loc[i,"Instructor"]
-        description = description + "\\n" + instructor #\\n to have a line break in the description but not in the .ics file.
+        description = instructor #\\n to have a line break in the description but not in the .ics file.
     else:
         numOfStudents = workdayCSV.loc[i,"Number of Enrolled Students"]
         description = description + "\\n Number of students: "+str(numOfStudents)
