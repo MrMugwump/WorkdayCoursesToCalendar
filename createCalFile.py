@@ -7,17 +7,27 @@ def formatDaysAndTime(days,times):
 
     rule = []
     for char in days:
-        match char:
-            case "M":
-                rule.append("MO")
-            case "T":
-                rule.append("TU")
-            case "W":
-                rule.append("WE")
-            case "R":
-                rule.append("TH")
-            case "F":
-                rule.append("FR")
+        if char == "M":
+            rule.append("MO")
+        elif char == "T":
+            rule.append("TU")
+        elif char == "W":
+            rule.append("WE")
+        elif char == "R":
+            rule.append("TH")
+        elif char == "F":
+            rule.append("FR")
+        # match char:
+        #     case "M":
+        #         rule.append("MO")
+        #     case "T":
+        #         rule.append("TU")
+        #     case "W":
+        #         rule.append("WE")
+        #     case "R":
+        #         rule.append("TH")
+        #     case "F":
+        #         rule.append("FR")
     timeSlot=[]
     startAndEndTimes = times.split("-")
     for time in startAndEndTimes:
@@ -75,17 +85,27 @@ def processStartAndEndDate(startDate,endDate,frequency):
     #This is needed as the start of the semester is the given start date, but that is not necessarily when the first class is.
     datesAsInt = [] 
     for date in frequency:
-        match date:
-            case "MO":
-                datesAsInt.append(0)
-            case "TU":
-                datesAsInt.append(1)
-            case "WE":
-                datesAsInt.append(2)
-            case "TH":
-                datesAsInt.append(3)
-            case "FR":
-                datesAsInt.append(4)
+        if date=="MO":
+            datesAsInt.append(0)
+        elif date=="TU":
+            datesAsInt.append(1)
+        elif date=="WE":
+            datesAsInt.append(2)
+        elif date=="TH":
+            datesAsInt.append(3)
+        elif date=="FR":
+            datesAsInt.append(4)
+        # match date:
+        #     case "MO":
+        #         datesAsInt.append(0)
+        #     case "TU":
+        #         datesAsInt.append(1)
+        #     case "WE":
+        #         datesAsInt.append(2)
+        #     case "TH":
+        #         datesAsInt.append(3)
+        #     case "FR":
+        #         datesAsInt.append(4)
 
     dateAdjustment=0
     # print(datesAsInt[len(datesAsInt)-1])
