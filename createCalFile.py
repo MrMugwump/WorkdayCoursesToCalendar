@@ -205,7 +205,7 @@ for i in range(0,numRows):
         description = instructor #\\n to have a line break in the description but not in the .ics file.
     else:
         numOfStudents = workdayCSV.loc[i,"Number of Enrolled Students"]
-        description = description + "\\n Number of students: "+str(numOfStudents)
+        description = description + "\\nNumber of students: "+str(numOfStudents)
     f.write("DESCRIPTION:"+ description+"\n")
 
     f.write("END:VEVENT\n")
