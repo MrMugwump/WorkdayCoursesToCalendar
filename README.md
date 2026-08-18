@@ -6,8 +6,8 @@ How to use:
     - For Teaching Assignments: 
         - Workday -> Teaching -> View My Teaching Schedule
         - I personally only have teaching assingments that occur once a week, so its possible that some formatting changes if a class meets multiple times a week.
-    - I don't think Workday allows you to download a CSV, so download the excel file and convert that to a CSV.
-    - **Note** there are multiple different ways to download both your current classes and teaching assignements, which can produce differently formatted spreadsheets, so it is important you download from the specified locations.
+    - Click the "Export to Worksheets" button. Once there, export to CSV.
+     - **Note** there are multiple different ways to download both your current classes and teaching assignements, which may produce differently formatted spreadsheets, so it is important you download from the specified locations.
 - Copy the file path to the CSV
     - No quotation marks!
 - Run createCalFile.py in command line

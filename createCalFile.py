@@ -212,4 +212,4 @@ for i in range(0,numRows):
 
 f.write("END:VCALENDAR")
 
-print("File succesfully created!")
+print("File succesfully created! File is called: " + icsTitle)
